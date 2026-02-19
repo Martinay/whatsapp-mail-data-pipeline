@@ -7,8 +7,10 @@ Used models:
 
 ## Setup
 
-1. **Environment Setup**
-   Update conda environment with: `mamba env update -n dev -f environment.yml`
+1. **Install Dependencies**
+   ```bash
+   uv sync
+   ```
 
 2. **Environment Variables**
    Copy `.env.example` to `.env` and fill in your actual API keys and configuration values:
@@ -23,11 +25,6 @@ Used models:
    - `OPENWEBUI_API_KEY`: OpenWebUI authentication token
    - `OPENWEBUI_KNOWLEDGE_ID_ATTACHMENTS`: Knowledge base ID for attachments
    - `OPENWEBUI_KNOWLEDGE_ID_CONVERSATIONS`: Knowledge base ID for conversations
-
-3. **Install Python Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
 
 ## Data Format
 

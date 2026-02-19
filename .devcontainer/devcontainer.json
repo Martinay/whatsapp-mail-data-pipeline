@@ -1,14 +1,11 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/miniconda
+// For format details, see https://aka.ms/devcontainer.json
 {
-	"name": "Miniconda (Python 3)",
+	"name": "Python 3 (uv)",
 	"build": { 
 		"context": "..",
 		"dockerfile": "Dockerfile"
 	},
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "conda init bash && echo 'conda activate dev' >> ~/.bashrc",
 	"customizations": {
 		"vscode": {
 			"extensions": [

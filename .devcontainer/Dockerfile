@@ -1,19 +1,18 @@
-FROM mcr.microsoft.com/devcontainers/miniconda:1-3
+FROM mcr.microsoft.com/devcontainers/python:1-3.14
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-RUN conda install -n base -c conda-forge mamba \
-    && conda clean -afy
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
-COPY environment.yml /tmp/conda-tmp/environment.yml
+COPY pyproject.toml /tmp/uv-tmp/pyproject.toml
 
 USER vscode
 
-RUN mamba env create -n dev -f /tmp/conda-tmp/environment.yml \
- && conda clean -afy
+WORKDIR /tmp/uv-tmp
+RUN uv sync
 
 USER root
-RUN rm -rf /tmp/conda-tmp
+RUN rm -rf /tmp/uv-tmp
