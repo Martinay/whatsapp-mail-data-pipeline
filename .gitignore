@@ -4,6 +4,7 @@
 # Data files
 data/*
 !data/.gitkeep
+!data/source/.gitkeep
 kosten.md
 
 # Python

@@ -1,12 +1,20 @@
 [project]
 name = "whatsapp-mail-data-pipeline"
-version = "0.1.0"
-description = "Pipeline that converts emails in Mbox format and whatsapp chat backups into a json structure"
-requires-python = ">=3.14"
+version = "0.2.0"
+description = "Pipeline that converts emails and WhatsApp backups into a structured SQLite + ChromaDB store with an LLM agent for querying"
+requires-python = "~=3.13.0"
 dependencies = [
-    "ipykernel",
     "openai",
-    "pymongo",
-    "requests",
     "python-dotenv",
+    "openpyxl",
+    "chromadb",
+    "pymupdf",
+    "python-docx",
+    "python-pptx",
+    "imageio-ffmpeg",
+    "icalendar",
+    "vobject",
+    "beautifulsoup4",
+    "numbers-parser",
+    "striprtf",
 ]
