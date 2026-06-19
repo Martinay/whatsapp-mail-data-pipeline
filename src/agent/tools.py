@@ -183,6 +183,7 @@ TOOL_DEFINITIONS = [
                 "subject, text, word_count, size_bytes, conversation_id, chat_name), "
                 "attachments (id, message_id, path, extension, mimetype, original_filename, size_bytes, "
                 "audio_transcription, image_summary, video_summary, extracted_text). "
+                "channel is 'Mail', 'Whatsapp', or 'Document'. "
                 "Use this for counting, filtering, sorting, aggregations, chronological lists."
             ),
             "parameters": {
@@ -209,7 +210,7 @@ TOOL_DEFINITIONS = [
                     "top_k": {"type": "integer", "description": "Number of results (default 10)."},
                     "channel": {
                         "type": "string",
-                        "enum": ["Mail", "Whatsapp"],
+                        "enum": ["Mail", "Whatsapp", "Document"],
                         "description": "Optional channel filter.",
                     },
                     "sender": {"type": "string", "description": "Optional sender filter."},
