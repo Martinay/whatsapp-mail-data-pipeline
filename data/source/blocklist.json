@@ -1,0 +1,13 @@
+{
+  "_comment": "Message IDs listed here are permanently excluded from the pipeline. They will be skipped during parsing and never reach SQLite, ChromaDB, or attachments.",
+  "blocked_message_ids": [
+    {
+      "id": "facb7e22162df0a7",
+      "description": "2025-05-22, 'DOPE Mallorca-Korsika-Sardinien' von skipper@dope55.com an jochen@bauerkarl.de – Willkommensnachricht an Bord der DOPE"
+    },
+    {
+      "id": "719e26fa53e70c75",
+      "description": "2024-03-05, 'Saling DOPE' von raik.wiemers@proconvent.com an dorisloescher5@gmail.com"
+    }
+  ]
+}

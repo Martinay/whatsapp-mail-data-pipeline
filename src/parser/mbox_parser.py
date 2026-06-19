@@ -10,6 +10,31 @@ from email.header import decode_header
 from email.utils import parsedate_to_datetime
 
 
+BLOCKLIST_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "..", "data", "source", "blocklist.json"
+)
+
+
+def load_blocklist() -> set[str]:
+    """Load blocked message IDs from data/source/blocklist.json.
+
+    Entries can be plain strings or objects with an ``id`` key
+    (and an optional ``description``).  Returns an empty set if
+    the file does not exist.
+    """
+    if not os.path.exists(BLOCKLIST_PATH):
+        return set()
+    with open(BLOCKLIST_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+    ids: set[str] = set()
+    for entry in data.get("blocked_message_ids", []):
+        if isinstance(entry, dict):
+            ids.add(entry["id"])
+        else:
+            ids.add(entry)
+    return ids
+
+
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data")
 OUTPUT_DIR = os.path.join(DATA_DIR, "1_parser")
 ATTACHMENTS_DIR = os.path.join(OUTPUT_DIR, "attachments")
@@ -190,8 +215,13 @@ def main():
 
     print(f"Found {len(mbox_files)} mbox file(s) in {SOURCE_DIR}")
 
+    blocked_ids = load_blocklist()
+    if blocked_ids:
+        print(f"Blocklist active: {len(blocked_ids)} message ID(s) will be skipped.")
+
     seen_ids: set[str] = set()
     skipped = 0
+    blocked = 0
 
     with open(JSONL_PATH, "w", encoding="utf-8") as out:
         for file_idx, mbox_path in enumerate(mbox_files, 1):
@@ -202,6 +232,11 @@ def main():
 
             for idx, msg in enumerate(mbox, 1):
                 message_id = make_message_id(msg)
+
+                if message_id in blocked_ids:
+                    blocked += 1
+                    print(f"  [{idx}/{total}] {message_id} (blocklisted – skipped)")
+                    continue
 
                 if message_id in seen_ids:
                     skipped += 1
@@ -233,7 +268,7 @@ def main():
                 out.write(json.dumps(message_json, ensure_ascii=False) + "\n")
                 print(f"  [{idx}/{total}] {message_id}")
 
-    print(f"\nDone – wrote all messages to {JSONL_PATH} (skipped {skipped} duplicates)")
+    print(f"\nDone – wrote all messages to {JSONL_PATH} (skipped {skipped} duplicates, {blocked} blocklisted)")
 
 
 if __name__ == "__main__":

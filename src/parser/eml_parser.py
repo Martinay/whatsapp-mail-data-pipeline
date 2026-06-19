@@ -17,6 +17,7 @@ try:
         extract_attachments,
         get_body,
         get_conversation_id,
+        load_blocklist,
         make_message_id,
     )
 except ModuleNotFoundError:
@@ -24,6 +25,7 @@ except ModuleNotFoundError:
         extract_attachments,
         get_body,
         get_conversation_id,
+        load_blocklist,
         make_message_id,
     )
 
@@ -55,12 +57,16 @@ def _load_seen_ids() -> set[str]:
     return seen
 
 
-def _process_single_eml(eml_path: str, out, seen_ids: set[str]) -> int:
+def _process_single_eml(eml_path: str, out, seen_ids: set[str], blocked_ids: set[str]) -> int:
     """Process one .eml file. Returns 1 if written, 0 if skipped."""
     with open(eml_path, "rb") as f:
         msg = email.message_from_bytes(f.read())
 
     message_id = make_message_id(msg)
+
+    if message_id in blocked_ids:
+        print(f"  {message_id} (blocklisted – skipped)")
+        return 0
 
     if message_id in seen_ids:
         print(f"  {message_id} (duplicate – skipped)")
@@ -104,13 +110,16 @@ def main():
     print(f"Found {len(eml_files)} .eml file(s) in {SOURCE_DIR}")
 
     seen_ids = _load_seen_ids()
+    blocked_ids = load_blocklist()
+    if blocked_ids:
+        print(f"Blocklist active: {len(blocked_ids)} message ID(s) will be skipped.")
     total_written = 0
 
     with open(JSONL_PATH, "a", encoding="utf-8") as out:
         for file_idx, eml_path in enumerate(eml_files, 1):
             eml_name = os.path.basename(eml_path)
             print(f"\n=== [{file_idx}/{len(eml_files)}] Processing {eml_name} ===")
-            total_written += _process_single_eml(eml_path, out, seen_ids)
+            total_written += _process_single_eml(eml_path, out, seen_ids, blocked_ids)
 
     print(f"\nDone – appended {total_written} email(s) to {JSONL_PATH}")
 
