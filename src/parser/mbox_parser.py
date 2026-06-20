@@ -1,4 +1,7 @@
-"""Parse mbox file into JSONL (one JSON object per line)."""
+"""Parse mbox file into JSONL (one JSON object per line).
+
+Incremental: re-runs skip messages already present in the output file.
+"""
 
 import hashlib
 import json
@@ -201,6 +204,21 @@ def get_conversation_id(msg) -> str | None:
     return None
 
 
+def _load_seen_ids() -> set[str]:
+    """Read existing message IDs from the JSONL file for deduplication."""
+    seen: set[str] = set()
+    if os.path.exists(JSONL_PATH):
+        with open(JSONL_PATH, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        seen.add(json.loads(line)["id"])
+                    except (json.JSONDecodeError, KeyError):
+                        pass
+    return seen
+
+
 def _collect_mbox_files() -> list[str]:
     """Return sorted list of mbox file paths in SOURCE_DIR, skipping non-mbox files."""
     files = []
@@ -229,11 +247,11 @@ def main():
     if blocked_ids:
         print(f"Blocklist active: {len(blocked_ids)} message ID(s) will be skipped.")
 
-    seen_ids: set[str] = set()
+    seen_ids = _load_seen_ids()
     skipped = 0
     blocked = 0
 
-    with open(JSONL_PATH, "w", encoding="utf-8") as out:
+    with open(JSONL_PATH, "a", encoding="utf-8") as out:
         for file_idx, mbox_path in enumerate(mbox_files, 1):
             mbox_name = os.path.basename(mbox_path)
             print(f"\n=== [{file_idx}/{len(mbox_files)}] Processing {mbox_name} ===")
