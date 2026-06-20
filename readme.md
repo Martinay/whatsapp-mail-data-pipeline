@@ -12,7 +12,7 @@ mbox + WhatsApp ZIP → Parser (JSONL) → Enrichment → SQLite (+ FTS5) + Chro
 
 | Stage | Scripts | Function |
 |-------|---------|----------|
-| `src/parser/` | `mbox_parser.py`, `whatsapp_parser.py`, `document_parser.py` | Raw data → JSONL (`messages.jsonl`) + attachments |
+| `src/parser/` | `mbox_parser.py`, `eml_parser.py`, `whatsapp_parser.py`, `document_parser.py` | Raw data → JSONL (`messages.jsonl`) + attachments |
 | `src/enrich/` | `extract_zips.py`, `transcribe_audio.py`, `describe_videos.py`, `describe_pictures.py`, `extract_documents.py`, `enrich_metadata.py` | ZIP→Attachments, Audio→Text, Video→Summary+Transcript, Images→Summary, Documents→Text (PDF/Excel/Word/PPTX/HTML/TXT/DOC/ICS/VCF), Metadata |
 | `src/load/` | `sqlite_loader.py`, `chromadb_loader.py` | JSONL → SQLite (structure + FTS5) + ChromaDB (semantics) |
 | `src/agent/` | `agent.py`, `tools.py`, `prompts.py` | Interactive LLM agent with SQL, semantic search, fulltext search, and Excel export |
@@ -48,6 +48,7 @@ mbox + WhatsApp ZIP → Parser (JSONL) → Enrichment → SQLite (+ FTS5) + Chro
 ```bash
 # 1. Parse (outputs data/1_parser/messages.jsonl)
 uv run python src/parser/mbox_parser.py
+uv run python src/parser/eml_parser.py
 uv run python src/parser/whatsapp_parser.py
 uv run python src/parser/document_parser.py
 
