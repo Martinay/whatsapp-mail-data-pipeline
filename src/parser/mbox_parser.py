@@ -60,11 +60,21 @@ def get_body(msg) -> str:
             if part.get_content_type() == "text/plain":
                 payload = part.get_payload(decode=True)
                 if payload is not None:
-                    parts.append(payload.decode(errors="ignore"))
+                    charset = part.get_content_charset() or "utf-8"
+                    try:
+                        parts.append(payload.decode(charset, errors="replace"))
+                    except LookupError:
+                        parts.append(payload.decode("utf-8", errors="ignore"))
         return "\n".join(parts)
     else:
         payload = msg.get_payload(decode=True)
-        return payload.decode(errors="ignore") if payload is not None else ""
+        if payload is not None:
+            charset = msg.get_content_charset() or "utf-8"
+            try:
+                return payload.decode(charset, errors="replace")
+            except LookupError:
+                return payload.decode("utf-8", errors="ignore")
+        return ""
     return ""
 
 
