@@ -27,6 +27,8 @@ TIMESTAMP_FMT = "%d.%m.%y, %H:%M:%S"
 
 # Prefix used by WhatsApp export filenames
 _CHAT_PREFIX = "WhatsApp Chat - "
+# Optional date prefix added by user when archiving backups (e.g. "2026-02-19_")
+_DATE_PREFIX_RE = re.compile(r"^\d{4}-\d{2}-\d{2}_")
 
 
 def _is_blank(text: str) -> bool:
@@ -37,8 +39,11 @@ def _chat_name_from_filename(zip_name: str) -> str:
     """Derive a chat name from the ZIP filename.
 
     'WhatsApp Chat - Nils Heyde.zip' → 'Nils Heyde'
+    '2026-02-19_WhatsApp Chat - Nils Heyde.zip' → 'Nils Heyde'
     """
     stem = os.path.splitext(zip_name)[0]
+    # Strip optional date prefix like "2026-02-19_"
+    stem = _DATE_PREFIX_RE.sub("", stem)
     if stem.startswith(_CHAT_PREFIX):
         return stem[len(_CHAT_PREFIX):].strip()
     return stem.strip()
@@ -83,8 +88,13 @@ def extract_chat_name(messages: list[dict]) -> str:
 
 
 def make_message_id(timestamp: _dt.datetime, sender: str, text: str, chat_name: str = "") -> str:
-    """Deterministic ID from chat + timestamp + sender + text prefix."""
-    raw = f"{chat_name}|{timestamp.isoformat()}|{sender}|{text[:100]}"
+    """Deterministic ID from chat + timestamp (minute precision) + sender + text prefix.
+
+    WhatsApp re-exports can shift timestamps by ±1 s, so we truncate to
+    minute precision to keep the ID stable across exports.
+    """
+    ts_minute = timestamp.replace(second=0, microsecond=0)
+    raw = f"{chat_name}|{ts_minute.isoformat()}|{sender}|{text[:100]}"
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
